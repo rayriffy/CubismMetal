@@ -1,0 +1,34 @@
+name: Build macOS App
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build CubismMetal
+    runs-on: macos-15
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v5
+
+      - name: Validate sample models
+        shell: zsh
+        run: scripts/verify.sh samples
+
+      - name: Build app bundle
+        shell: zsh
+        run: scripts/build-app.sh "$RUNNER_TEMP/CubismMetal.app"
+
+      - name: Upload app bundle
+        uses: actions/upload-artifact@v7
+        with:
+          name: CubismMetal-macos
+          path: ${{ runner.temp }}/CubismMetal.app
+          if-no-files-found: error
+          retention-days: 14
