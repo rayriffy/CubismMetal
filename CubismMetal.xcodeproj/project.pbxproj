@@ -11,6 +11,7 @@
 		0410E940AB0E2BDA4259363B /* WindowChromeConfigurator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FD3EE3367659F0D36B54160 /* WindowChromeConfigurator.swift */; };
 		05FBFE0FC389CA157CCB79FA /* CubismMetalKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E6923EC503BA1EC021B6D52F /* CubismMetalKit.framework */; };
 		07262A41F8D105306C53CB2D /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2384096B47CFD1888C6B3D3C /* main.swift */; };
+		0DC0CA3D381B0575DE450C85 /* MetalRendererInitializationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B763BAC7030EC4EFB356BDCB /* MetalRendererInitializationTests.swift */; };
 		1591683C5624E02EBD479505 /* CubismCoreLibraryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1A5C7A12DFE380E2FB7943F /* CubismCoreLibraryTests.swift */; };
 		163859152F34E42AF45466E8 /* MetalRenderer+Support.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE4375FE2B277B6B58FDD00D /* MetalRenderer+Support.swift */; };
 		17FC1E8B4AA716D4BC2D6DE2 /* MetalKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C1708A0F27CC7E957F9C0F4C /* MetalKit.framework */; };
@@ -20,10 +21,12 @@
 		266282509A3D90A4F635B46D /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 44C77E46F619EA2EB697E7A3 /* XCTest.framework */; };
 		26DD7C3F6BB905208F7758BE /* CubismCoreABI.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D0D2FAFE288302C34AC47F /* CubismCoreABI.swift */; };
 		2732B4144E1011474CDC7FE5 /* CubismCoreModelTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB160DF2369B8BAD5FB204A4 /* CubismCoreModelTypes.swift */; };
+		33D9946B58ABFB4D8D285A53 /* FrameRateSampler.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0D1B47A2B80C1B4F170DCBF /* FrameRateSampler.swift */; };
 		3503E15A55D1AAF581F626CF /* CubismModelManifest.swift in Sources */ = {isa = PBXBuildFile; fileRef = F552BA4F588BEFF898C0B4B8 /* CubismModelManifest.swift */; };
 		3BA42E01EE4CAAE0750D24DF /* CubismMetalKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = E6923EC503BA1EC021B6D52F /* CubismMetalKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		3BE48FEE2E86DEE8C0E8EB58 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6C59E2F9FD45ED9D39A43B8D /* AppKit.framework */; };
 		3F5571293424779F1202F680 /* CubismMetalKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E6923EC503BA1EC021B6D52F /* CubismMetalKit.framework */; };
+		3F72A4F73865F18EDE6FEBB2 /* FrameRateSamplerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07E8C2D15DA41CADB203536D /* FrameRateSamplerTests.swift */; };
 		4341FD3C07F2C9068BE469B0 /* CubismCanvasViewportTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C74ADD66F5BDB98AEB8FF10E /* CubismCanvasViewportTests.swift */; };
 		51A7849BD267A396264CB70F /* MetalRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CA8080DB45705FAC0DAFE54 /* MetalRenderer.swift */; };
 		5A6BE642D5A5ADCAB4861A18 /* CubismCore in Resources */ = {isa = PBXBuildFile; fileRef = 683A56C9D5BECD46BDC853B1 /* CubismCore */; };
@@ -112,6 +115,7 @@
 
 /* Begin PBXFileReference section */
 		057DB7ED3928CD9E7DCC00FC /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = System/Library/Frameworks/Metal.framework; sourceTree = SDKROOT; };
+		07E8C2D15DA41CADB203536D /* FrameRateSamplerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrameRateSamplerTests.swift; sourceTree = "<group>"; };
 		0D264F8CC3127202ECC1C65E /* CubismCanvasViewport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CubismCanvasViewport.swift; sourceTree = "<group>"; };
 		10DF27199E3068AD179D3F3B /* CubismModelManifestTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CubismModelManifestTests.swift; sourceTree = "<group>"; };
 		2384096B47CFD1888C6B3D3C /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
@@ -136,6 +140,8 @@
 		A93FADC4EF29BBAE862664C6 /* CubismRenderTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CubismRenderTypes.swift; sourceTree = "<group>"; };
 		AB310E7669C1460F1B377081 /* CubismMotionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CubismMotionTests.swift; sourceTree = "<group>"; };
 		AE100814A2F430D9C0CA335D /* MetalRenderer+Viewport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MetalRenderer+Viewport.swift"; sourceTree = "<group>"; };
+		B763BAC7030EC4EFB356BDCB /* MetalRendererInitializationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetalRendererInitializationTests.swift; sourceTree = "<group>"; };
+		C0D1B47A2B80C1B4F170DCBF /* FrameRateSampler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrameRateSampler.swift; sourceTree = "<group>"; };
 		C1708A0F27CC7E957F9C0F4C /* MetalKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalKit.framework; path = System/Library/Frameworks/MetalKit.framework; sourceTree = SDKROOT; };
 		C74ADD66F5BDB98AEB8FF10E /* CubismCanvasViewportTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CubismCanvasViewportTests.swift; sourceTree = "<group>"; };
 		CCCE0238CA8C0F4A2F30FC9A /* ViewerWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewerWindow.swift; sourceTree = "<group>"; };
@@ -269,6 +275,8 @@
 			children = (
 				C74ADD66F5BDB98AEB8FF10E /* CubismCanvasViewportTests.swift */,
 				37259776134C7619625D65C6 /* CubismRenderColorPipelineTests.swift */,
+				07E8C2D15DA41CADB203536D /* FrameRateSamplerTests.swift */,
+				B763BAC7030EC4EFB356BDCB /* MetalRendererInitializationTests.swift */,
 			);
 			path = Rendering;
 			sourceTree = "<group>";
@@ -308,6 +316,7 @@
 			children = (
 				0D264F8CC3127202ECC1C65E /* CubismCanvasViewport.swift */,
 				A93FADC4EF29BBAE862664C6 /* CubismRenderTypes.swift */,
+				C0D1B47A2B80C1B4F170DCBF /* FrameRateSampler.swift */,
 				5CA8080DB45705FAC0DAFE54 /* MetalRenderer.swift */,
 				7DD4D37834C31B1DCF057011 /* MetalRenderer+Pipelines.swift */,
 				CE4375FE2B277B6B58FDD00D /* MetalRenderer+Support.swift */,
@@ -464,6 +473,8 @@
 				E55E41B0AFA9C4D74B25C29D /* CubismModelManifestTests.swift in Sources */,
 				17FC752909CC5BDA232034B9 /* CubismMotionTests.swift in Sources */,
 				AAE9C05B1EB8896CB0921F8A /* CubismRenderColorPipelineTests.swift in Sources */,
+				3F72A4F73865F18EDE6FEBB2 /* FrameRateSamplerTests.swift in Sources */,
+				0DC0CA3D381B0575DE450C85 /* MetalRendererInitializationTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -500,6 +511,7 @@
 				22BE97AE53D5B5D9F708A118 /* CubismModelSession.swift in Sources */,
 				C5DBA7BAFF9F94A72C5B5139 /* CubismMotion.swift in Sources */,
 				90719B9F404856E7102AD8AE /* CubismRenderTypes.swift in Sources */,
+				33D9946B58ABFB4D8D285A53 /* FrameRateSampler.swift in Sources */,
 				8A7BF0E3AEFDF4F78910B862 /* MetalRenderer+Pipelines.swift in Sources */,
 				163859152F34E42AF45466E8 /* MetalRenderer+Support.swift in Sources */,
 				8AE76149983D5A436FDB5340 /* MetalRenderer+Viewport.swift in Sources */,

@@ -16,6 +16,13 @@ struct ViewerWindow: View {
                     EmptyCanvasState(viewer: viewer)
                 }
 
+                if viewer.showsFPSCounter {
+                    FPSCounterHUD(text: viewer.fpsCounterText)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                        .padding(16)
+                        .allowsHitTesting(false)
+                }
+
                 VStack(spacing: 12) {
                     if let errorMessage = viewer.errorMessage {
                         RuntimeErrorBanner(message: errorMessage, dismiss: viewer.dismissError)
@@ -96,6 +103,8 @@ private struct ViewerSidebar: View {
                         }
                     }
                     .pickerStyle(.segmented)
+
+                    Toggle("Show FPS counter", isOn: $viewer.showsFPSCounter)
                 }
 
                 Section {
@@ -108,6 +117,24 @@ private struct ViewerSidebar: View {
             .listStyle(.sidebar)
         }
         .frame(minWidth: 248, idealWidth: 280)
+    }
+}
+
+private struct FPSCounterHUD: View {
+    let text: String
+
+    var body: some View {
+        HStack(spacing: 6) {
+            Image(systemName: "speedometer")
+            Text(text)
+                .monospacedDigit()
+        }
+        .font(.caption.weight(.semibold))
+        .foregroundStyle(.white)
+        .padding(.horizontal, 10)
+        .padding(.vertical, 8)
+        .background(.black.opacity(0.42), in: RoundedRectangle(cornerRadius: 9, style: .continuous))
+        .accessibilityLabel("Measured frame rate: \(text)")
     }
 }
 

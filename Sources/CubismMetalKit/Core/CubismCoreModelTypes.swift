@@ -53,6 +53,7 @@ enum CubismCoreConstants {
     static let multiplicativeBlend: UInt8 = 1 << 1
     static let invertedMask: UInt8 = 1 << 3
     static let visible: UInt8 = 1 << 0
+    static let vertexPositionsDidChange: UInt8 = 1 << 5
 }
 
 final class CubismAlignedStorage {

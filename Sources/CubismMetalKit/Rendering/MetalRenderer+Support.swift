@@ -28,6 +28,7 @@ extension MetalRenderer {
         let availability = DispatchSemaphore(value: 1)
         var geometryBuffers: [String: GeometryBuffers] = [:]
         var maskTextures: [MaskKey: MTLTexture] = [:]
+        var uploadedDrawableIdentifiers = Set<String>()
     }
 
     struct GeometryBuffers {
@@ -60,4 +61,5 @@ extension MetalRenderer {
             self.identifiers = Array(Set(identifiers)).sorted()
         }
     }
+
 }

@@ -64,6 +64,20 @@ public final class CubismModelSession: CubismFrameSource {
 
     private var activeMotion: CubismMotion?
     private var motionElapsedTime: TimeInterval = 0
+    private var drawableStaticMetadata: [DrawableStaticMetadata] = []
+    private var drawableVertices: [[SIMD2<Float>]] = []
+
+    private struct DrawableStaticMetadata {
+        let identifier: String
+        let textureIndex: Int
+        let textureURL: URL?
+        let constantFlags: UInt8
+        let rawBlendMode: Int?
+        let maskIndices: [Int]
+        let maskSourceIdentifiers: [String]
+        let uvs: [SIMD2<Float>]
+        let indices: [UInt16]
+    }
 
     init(
         manifest: CubismModelManifest,
@@ -250,68 +264,105 @@ public final class CubismModelSession: CubismFrameSource {
         }
 
         let explicitBlendModes = coreLibrary.abi.getDrawableBlendModes?(modelPointer)
+        let rebuildStaticMetadata = drawableStaticMetadata.count != drawableCount
+        if rebuildStaticMetadata {
+            drawableStaticMetadata.removeAll(keepingCapacity: true)
+            drawableStaticMetadata.reserveCapacity(drawableCount)
+            drawableVertices.removeAll(keepingCapacity: true)
+            drawableVertices.reserveCapacity(drawableCount)
+        }
+
         var evaluations: [CubismDrawableEvaluation] = []
         evaluations.reserveCapacity(drawableCount)
+        var snapshots: [CubismDrawableSnapshot] = []
+        snapshots.reserveCapacity(drawableCount)
 
         for index in 0 ..< drawableCount {
-            guard let identifierPointer = identifiers[index] else {
-                throw CubismCoreModelError.invalidCoreData("drawable \(index) has no identifier")
-            }
-            let identifier = String(cString: identifierPointer)
             let vertexCount = try Self.validatedCount(vertexCounts[index], kind: "vertex")
-            let indexCount = try Self.validatedCount(indexCounts[index], kind: "index")
-            let maskCount = try Self.validatedCount(maskCounts[index], kind: "mask")
+            let dynamic = dynamicFlags[index]
+            let metadata: DrawableStaticMetadata
+            let vertices: [SIMD2<Float>]
 
-            let vertices = try Self.readVector2Values(
-                vertexPositions[index],
-                count: vertexCount,
-                kind: "vertex position"
-            )
-            let uvs = try Self.readVector2Values(
-                vertexUVs[index],
-                count: vertexCount,
-                kind: "vertex UV"
-            )
-            let triangleIndices = try Self.readIndices(indices[index], count: indexCount)
-            let maskIndices = try Self.readMasks(masks[index], count: maskCount)
-            let maskSourceIdentifiers: [String] = maskIndices.compactMap { maskIndex -> String? in
-                guard maskIndex >= 0, maskIndex < drawableCount,
-                      let maskIdentifier = identifiers[maskIndex] else {
-                    return nil
+            if rebuildStaticMetadata {
+                guard let identifierPointer = identifiers[index] else {
+                    throw CubismCoreModelError.invalidCoreData("drawable \(index) has no identifier")
                 }
-                return String(cString: maskIdentifier)
+                let indexCount = try Self.validatedCount(indexCounts[index], kind: "index")
+                let maskCount = try Self.validatedCount(maskCounts[index], kind: "mask")
+                let maskIndices = try Self.readMasks(masks[index], count: maskCount)
+                let maskSourceIdentifiers: [String] = maskIndices.compactMap { maskIndex -> String? in
+                    guard maskIndex >= 0, maskIndex < drawableCount,
+                          let maskIdentifier = identifiers[maskIndex] else {
+                        return nil
+                    }
+                    return String(cString: maskIdentifier)
+                }
+                let textureIndex = Int(textureIndices[index])
+                metadata = DrawableStaticMetadata(
+                    identifier: String(cString: identifierPointer),
+                    textureIndex: textureIndex,
+                    textureURL: textureURLs.indices.contains(textureIndex) ? textureURLs[textureIndex] : nil,
+                    constantFlags: constantFlags[index],
+                    rawBlendMode: explicitBlendModes.map { Int($0[index]) },
+                    maskIndices: maskIndices,
+                    maskSourceIdentifiers: maskSourceIdentifiers,
+                    uvs: try Self.readVector2Values(
+                        vertexUVs[index],
+                        count: vertexCount,
+                        kind: "vertex UV"
+                    ),
+                    indices: try Self.readIndices(indices[index], count: indexCount)
+                )
+                vertices = try Self.readVector2Values(
+                    vertexPositions[index],
+                    count: vertexCount,
+                    kind: "vertex position"
+                )
+                drawableStaticMetadata.append(metadata)
+                drawableVertices.append(vertices)
+            } else {
+                metadata = drawableStaticMetadata[index]
+                guard metadata.uvs.count == vertexCount else {
+                    throw CubismCoreModelError.invalidCoreData("drawable \(index) changed its static vertex count")
+                }
+                if dynamic & CubismCoreConstants.vertexPositionsDidChange != 0 {
+                    vertices = try Self.readVector2Values(
+                        vertexPositions[index],
+                        count: vertexCount,
+                        kind: "vertex position"
+                    )
+                    drawableVertices[index] = vertices
+                } else {
+                    vertices = drawableVertices[index]
+                }
             }
 
-            let textureIndex = Int(textureIndices[index])
-            let textureURL = textureURLs.indices.contains(textureIndex) ? textureURLs[textureIndex] : nil
-            let flags = constantFlags[index]
-            let dynamic = dynamicFlags[index]
-            let rawBlendMode = explicitBlendModes.map { Int($0[index]) }
             let snapshot = CubismDrawableSnapshot(
-                identifier: identifier,
-                textureURL: textureURL,
+                identifier: metadata.identifier,
+                textureURL: metadata.textureURL,
                 vertices: vertices,
-                uvs: uvs,
-                indices: triangleIndices,
+                uvs: metadata.uvs,
+                indices: metadata.indices,
                 opacity: opacities[index],
                 renderOrder: Int(renderOrders[index]),
                 blendMode: Self.blendMode(
-                    explicitValue: rawBlendMode,
-                    constantFlags: flags
+                    explicitValue: metadata.rawBlendMode,
+                    constantFlags: metadata.constantFlags
                 ),
-                maskSourceIdentifiers: maskSourceIdentifiers,
-                isInvertedMask: flags & CubismCoreConstants.invertedMask != 0,
+                maskSourceIdentifiers: metadata.maskSourceIdentifiers,
+                isInvertedMask: metadata.constantFlags & CubismCoreConstants.invertedMask != 0,
                 isVisible: dynamic & CubismCoreConstants.visible != 0
             )
+            snapshots.append(snapshot)
             evaluations.append(
                 CubismDrawableEvaluation(
                     index: index,
-                    identifier: identifier,
-                    textureIndex: textureIndex,
-                    constantFlags: flags,
+                    identifier: metadata.identifier,
+                    textureIndex: metadata.textureIndex,
+                    constantFlags: metadata.constantFlags,
                     dynamicFlags: dynamic,
-                    rawBlendMode: rawBlendMode,
-                    maskIndices: maskIndices,
+                    rawBlendMode: metadata.rawBlendMode,
+                    maskIndices: metadata.maskIndices,
                     snapshot: snapshot
                 )
             )
@@ -351,7 +402,7 @@ public final class CubismModelSession: CubismFrameSource {
             CubismFrameSnapshot(
                 canvasSize: canvasSize,
                 canvasOrigin: canvasOrigin,
-                drawables: evaluations.map(\.snapshot)
+                drawables: snapshots
             ),
             evaluations
         )

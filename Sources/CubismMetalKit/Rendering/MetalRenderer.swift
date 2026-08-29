@@ -1,6 +1,7 @@
 import Foundation
 import Metal
 import MetalKit
+import OSLog
 import QuartzCore
 import simd
 
@@ -16,6 +17,7 @@ public final class MetalRenderer: NSObject, MTKViewDelegate {
 
     public private(set) var targetFrameRate: TargetFrameRate = .sixty
     public var onError: ((Error) -> Void)?
+    public var onFrameRate: ((Double) -> Void)?
 
     /// Cubism texture PNGs are authored in sRGB. Decode them before blending
     /// into the view's sRGB drawable so translucent layers retain their source
@@ -23,6 +25,7 @@ public final class MetalRenderer: NSObject, MTKViewDelegate {
     nonisolated static let texturesUseSRGB = true
 
     private weak var view: MTKView?
+    private static let logger = Logger(subsystem: "com.rayriffy.CubismMetal", category: "MetalRenderer")
     private let device: MTLDevice
     private let commandQueue: MTLCommandQueue
     private let textureLoader: MTKTextureLoader
@@ -41,6 +44,7 @@ public final class MetalRenderer: NSObject, MTKViewDelegate {
     private var nextFrameResourceIndex = 0
     private var lastUpdateTime: CFTimeInterval?
     private var lastReportedError: String?
+    private var frameRateSampler = FrameRateSampler()
     var canvasViewport = CubismCanvasViewport()
 
     public init?(view: MTKView) {
@@ -120,6 +124,7 @@ public final class MetalRenderer: NSObject, MTKViewDelegate {
                 library: library
             )
         } catch {
+            Self.logger.error("Metal pipeline setup failed: \(error.localizedDescription, privacy: .public)")
             return nil
         }
 
@@ -133,11 +138,13 @@ public final class MetalRenderer: NSObject, MTKViewDelegate {
 
     public func setFrameSource(_ source: CubismFrameSource?) {
         frameSource = source
+        frameRateSampler.reset()
         canvasViewport.reset()
         textureCache.removeAll(keepingCapacity: true)
         for resources in frameResources {
             resources.geometryBuffers.removeAll(keepingCapacity: true)
             resources.maskTextures.removeAll(keepingCapacity: true)
+            resources.uploadedDrawableIdentifiers.removeAll(keepingCapacity: true)
         }
         lastUpdateTime = nil
         lastReportedError = nil
@@ -184,11 +191,13 @@ public final class MetalRenderer: NSObject, MTKViewDelegate {
         else {
             return
         }
+        let frameTimestamp = CACurrentMediaTime()
 
         let resources = frameResources[nextFrameResourceIndex]
         nextFrameResourceIndex = (nextFrameResourceIndex + 1) % frameResources.count
         let slotSemaphore = resources.availability
         slotSemaphore.wait()
+        resources.uploadedDrawableIdentifiers.removeAll(keepingCapacity: true)
         commandBuffer.addCompletedHandler { _ in
             slotSemaphore.signal()
         }
@@ -196,6 +205,9 @@ public final class MetalRenderer: NSObject, MTKViewDelegate {
         defer {
             commandBuffer.present(drawable)
             commandBuffer.commit()
+            if let framesPerSecond = frameRateSampler.recordFrame(at: frameTimestamp) {
+                onFrameRate?(framesPerSecond)
+            }
         }
 
         guard let frameSource else {
@@ -204,9 +216,11 @@ public final class MetalRenderer: NSObject, MTKViewDelegate {
         }
 
         do {
-            let now = CACurrentMediaTime()
-            let deltaTime = min(max(now - (lastUpdateTime ?? now), 0), 1.0 / 15.0)
-            lastUpdateTime = now
+            let deltaTime = min(
+                max(frameTimestamp - (lastUpdateTime ?? frameTimestamp), 0),
+                1.0 / 15.0
+            )
+            lastUpdateTime = frameTimestamp
             let frame = try frameSource.advance(by: deltaTime)
             let didEncode = try encode(
                 frame: frame,
@@ -266,6 +280,8 @@ public final class MetalRenderer: NSObject, MTKViewDelegate {
             throw CubismRuntimeError.unavailable("Metal display render encoder could not be created.")
         }
         defer { encoder.endEncoding() }
+        encoder.setCullMode(.none)
+        encoder.setFragmentSamplerState(samplerState, index: 0)
 
         for drawable in drawables {
             let maskTexture = drawable.maskSourceIdentifiers.isEmpty
@@ -332,12 +348,14 @@ public final class MetalRenderer: NSObject, MTKViewDelegate {
         attachment.clearColor = MTLClearColor(red: 1, green: 0, blue: 0, alpha: 1)
 
         guard let encoder = commandBuffer.makeRenderCommandEncoder(descriptor: renderPassDescriptor) else {
-            throw CubismRuntimeError.unavailable("Metal mask render encoder could not be created.")
+            throw CubismRuntimeError.unavailable("Metal alpha mask render encoder could not be created.")
         }
         defer { encoder.endEncoding() }
 
         encoder.label = "Cubism alpha mask"
         encoder.setRenderPipelineState(maskPipeline)
+        encoder.setCullMode(.none)
+        encoder.setFragmentSamplerState(samplerState, index: 0)
         for identifier in key.identifiers {
             guard let drawable = sourceDrawablesByID[identifier], isMaskRenderable(drawable) else {
                 continue
@@ -416,7 +434,6 @@ public final class MetalRenderer: NSObject, MTKViewDelegate {
         encoder.setVertexBuffer(buffers.vertexBuffer, offset: 0, index: 0)
         encoder.setVertexBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: 1)
         encoder.setFragmentTexture(texture, index: 0)
-        encoder.setFragmentSamplerState(samplerState, index: 0)
         if let maskTexture {
             var maskUniforms = MaskUniforms(inverted: isInvertedMask ? 1 : 0)
             encoder.setFragmentTexture(maskTexture, index: 1)
@@ -426,7 +443,6 @@ public final class MetalRenderer: NSObject, MTKViewDelegate {
                 index: 0
             )
         }
-        encoder.setCullMode(.none)
         encoder.drawIndexedPrimitives(
             type: .triangle,
             indexCount: drawable.indices.count,
@@ -447,10 +463,8 @@ public final class MetalRenderer: NSObject, MTKViewDelegate {
         for drawable: CubismDrawableSnapshot,
         resources: FrameResources
     ) -> GeometryBuffers {
-        let vertices = zip(drawable.vertices, drawable.uvs).map {
-            Vertex(position: $0.0, uv: $0.1)
-        }
-        let vertexByteCount = vertices.count * MemoryLayout<Vertex>.stride
+        let vertexCount = min(drawable.vertices.count, drawable.uvs.count)
+        let vertexByteCount = vertexCount * MemoryLayout<Vertex>.stride
         let indexByteCount = drawable.indices.count * MemoryLayout<UInt16>.stride
 
         var buffers = resources.geometryBuffers[drawable.identifier]
@@ -459,27 +473,39 @@ public final class MetalRenderer: NSObject, MTKViewDelegate {
             buffers = GeometryBuffers.make(device: device, vertexByteCount: vertexByteCount, indexByteCount: indexByteCount)
         }
 
-        vertices.withUnsafeBytes { source in
-            buffers.vertexBuffer.contents().copyMemory(from: source.baseAddress!, byteCount: vertexByteCount)
-        }
-        drawable.indices.withUnsafeBytes { source in
-            buffers.indexBuffer.contents().copyMemory(from: source.baseAddress!, byteCount: indexByteCount)
-        }
         resources.geometryBuffers[drawable.identifier] = buffers
+        guard resources.uploadedDrawableIdentifiers.insert(drawable.identifier).inserted else {
+            return buffers
+        }
+
+        let destinationVertices = buffers.vertexBuffer.contents().bindMemory(
+            to: Vertex.self,
+            capacity: vertexCount
+        )
+        for index in 0 ..< vertexCount {
+            destinationVertices[index] = Vertex(
+                position: drawable.vertices[index],
+                uv: drawable.uvs[index]
+            )
+        }
+        if indexByteCount > 0 {
+            drawable.indices.withUnsafeBytes { source in
+                buffers.indexBuffer.contents().copyMemory(from: source.baseAddress!, byteCount: indexByteCount)
+            }
+        }
         return buffers
     }
 
     private func texture(for url: URL) throws -> MTLTexture {
-        let normalizedURL = url.standardizedFileURL
-        if let cached = textureCache[normalizedURL] { return cached }
+        if let cached = textureCache[url] { return cached }
 
         let options: [MTKTextureLoader.Option: Any] = [
             .origin: MTKTextureLoader.Origin.bottomLeft,
             .generateMipmaps: false,
             .SRGB: Self.texturesUseSRGB,
         ]
-        let texture = try textureLoader.newTexture(URL: normalizedURL, options: options)
-        textureCache[normalizedURL] = texture
+        let texture = try textureLoader.newTexture(URL: url, options: options)
+        textureCache[url] = texture
         return texture
     }
 

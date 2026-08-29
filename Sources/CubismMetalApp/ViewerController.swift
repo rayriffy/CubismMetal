@@ -15,6 +15,14 @@ final class ViewerController: ObservableObject {
     @Published private(set) var isLoading = false
     @Published private(set) var errorMessage: String?
     @Published private(set) var rendererUnavailable = false
+    @Published private(set) var measuredFramesPerSecond: Double?
+    @Published var showsFPSCounter = false {
+        didSet {
+            if !showsFPSCounter {
+                measuredFramesPerSecond = nil
+            }
+        }
+    }
     @Published var loopsMotion = true {
         didSet {
             activeFrameSource?.loopsMotion = loopsMotion
@@ -59,6 +67,11 @@ final class ViewerController: ObservableObject {
         return "Metal · \(targetFrameRate.label)"
     }
 
+    var fpsCounterText: String {
+        guard let measuredFramesPerSecond else { return "-- FPS" }
+        return "\(Int(measuredFramesPerSecond.rounded())) FPS"
+    }
+
     var motionSelection: Binding<String?> {
         Binding(
             get: { self.selectedMotionID },
@@ -72,6 +85,10 @@ final class ViewerController: ObservableObject {
         renderer.setTargetFrameRate(targetFrameRate)
         renderer.onError = { [weak self] error in
             self?.showRuntimeError(error)
+        }
+        renderer.onFrameRate = { [weak self] framesPerSecond in
+            guard let self, self.showsFPSCounter else { return }
+            self.measuredFramesPerSecond = framesPerSecond
         }
         renderer.setFrameSource(activeFrameSource)
     }
