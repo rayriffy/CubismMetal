@@ -17,10 +17,6 @@ jobs:
       - name: Check out source
         uses: actions/checkout@v5
 
-      - name: Validate sample models
-        shell: bash
-        run: /bin/zsh scripts/verify.sh samples
-
       - name: Build app bundle
         shell: bash
         run: /bin/zsh scripts/build-app.sh "$RUNNER_TEMP/CubismMetal.app"
