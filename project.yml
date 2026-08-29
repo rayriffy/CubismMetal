@@ -1,0 +1,115 @@
+name: CubismMetal
+
+options:
+  minimumXcodeGenVersion: 2.46.0
+
+settings:
+  base:
+    MACOSX_DEPLOYMENT_TARGET: "14.0"
+    SWIFT_VERSION: "6.0"
+
+targets:
+  CubismMetal:
+    type: application
+    platform: macOS
+    sources:
+      - Sources/CubismMetalApp
+      - path: Sources/CubismMetalKit/Shaders
+        buildPhase: resources
+        type: folder
+      - path: Vendor/CubismCore
+        buildPhase: resources
+        type: folder
+    info:
+      path: scripts/CubismMetal.Info.plist
+      properties:
+        CFBundleDocumentTypes:
+          - CFBundleTypeName: Live2D Cubism Model
+            CFBundleTypeRole: Viewer
+            CFBundleTypeExtensions:
+              - model3.json
+              - moc3
+            LSHandlerRank: Alternate
+            LSItemContentTypes:
+              - com.rayriffy.cubism-metal.model3
+              - com.rayriffy.cubism-metal.moc3
+        UTExportedTypeDeclarations:
+          - UTTypeIdentifier: com.rayriffy.cubism-metal.model3
+            UTTypeDescription: Live2D Cubism Model Manifest
+            UTTypeConformsTo:
+              - public.json
+            UTTypeTagSpecification:
+              public.filename-extension:
+                - model3.json
+          - UTTypeIdentifier: com.rayriffy.cubism-metal.moc3
+            UTTypeDescription: Live2D Cubism Model Data
+            UTTypeConformsTo:
+              - public.data
+            UTTypeTagSpecification:
+              public.filename-extension:
+                - moc3
+    dependencies:
+      - target: CubismMetalKit
+        embed: true
+      - sdk: AppKit.framework
+      - sdk: Metal.framework
+      - sdk: MetalKit.framework
+      - sdk: QuartzCore.framework
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.rayriffy.CubismMetal
+
+  CubismMetalKit:
+    type: framework
+    platform: macOS
+    sources:
+      - Sources/CubismMetalKit/Core
+      - Sources/CubismMetalKit/Model
+      - Sources/CubismMetalKit/Rendering
+    dependencies:
+      - sdk: AppKit.framework
+      - sdk: Metal.framework
+      - sdk: MetalKit.framework
+      - sdk: QuartzCore.framework
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        PRODUCT_BUNDLE_IDENTIFIER: com.rayriffy.CubismMetalKit
+
+  CubismMetalKitTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - Tests/CubismMetalKitTests
+    dependencies:
+      - target: CubismMetalKit
+      - sdk: XCTest.framework
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        PRODUCT_BUNDLE_IDENTIFIER: com.rayriffy.CubismMetalKitTests
+
+  CubismMetalVerification:
+    type: tool
+    platform: macOS
+    sources:
+      - Sources/CubismMetalVerification
+    dependencies:
+      - target: CubismMetalKit
+        embed: true
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.rayriffy.CubismMetalVerification
+
+schemes:
+  CubismMetal:
+    build:
+      targets:
+        CubismMetal: all
+        CubismMetalKitTests: [test]
+    run:
+      config: Debug
+    test:
+      config: Debug
+      targets:
+        - CubismMetalKitTests
