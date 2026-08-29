@@ -18,12 +18,12 @@ jobs:
         uses: actions/checkout@v5
 
       - name: Validate sample models
-        shell: zsh
-        run: scripts/verify.sh samples
+        shell: bash
+        run: /bin/zsh scripts/verify.sh samples
 
       - name: Build app bundle
-        shell: zsh
-        run: scripts/build-app.sh "$RUNNER_TEMP/CubismMetal.app"
+        shell: bash
+        run: /bin/zsh scripts/build-app.sh "$RUNNER_TEMP/CubismMetal.app"
 
       - name: Upload app bundle
         uses: actions/upload-artifact@v7
