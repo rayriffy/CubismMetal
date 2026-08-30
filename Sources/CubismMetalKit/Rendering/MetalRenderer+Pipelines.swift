@@ -18,16 +18,34 @@ extension MetalRenderer {
         return try device.makeLibrary(source: source, options: nil)
     }
 
-    private nonisolated static func shaderSourceURL() -> URL? {
-        #if SWIFT_PACKAGE
-        if let url = shaderSourceURL(in: .module) {
-            return url
+        private nonisolated static func shaderSourceURL() -> URL? {
+            if let url = packagedShaderSourceURL(resourceURL: Bundle.main.resourceURL) {
+                return url
+            }
+
+            #if SWIFT_PACKAGE
+            if let url = shaderSourceURL(in: .module) {
+                return url
         }
         #endif
-        return shaderSourceURL(in: .main)
-    }
+            return shaderSourceURL(in: .main)
+        }
 
-    private nonisolated static func shaderSourceURL(in bundle: Bundle) -> URL? {
+        nonisolated static func packagedShaderSourceURL(
+            resourceURL: URL?,
+            fileManager: FileManager = .default
+        ) -> URL? {
+            guard let resourceURL else {
+                return nil
+            }
+            let shaderURL = resourceURL
+                .appendingPathComponent("CubismMetal_CubismMetalKit.bundle", isDirectory: true)
+                .appendingPathComponent("Shaders", isDirectory: true)
+                .appendingPathComponent("CubismShaders.metal")
+            return fileManager.fileExists(atPath: shaderURL.path) ? shaderURL : nil
+        }
+
+        private nonisolated static func shaderSourceURL(in bundle: Bundle) -> URL? {
         bundle.url(forResource: "CubismShaders", withExtension: "metal", subdirectory: "Shaders")
             ?? bundle.url(forResource: "CubismShaders", withExtension: "metal")
     }

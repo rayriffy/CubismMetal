@@ -26,9 +26,10 @@ open .build/CubismMetal.dmg
 Neither packaging script overwrites an existing output. Pass explicit paths
 when you need another bundle or disk image.
 
-GitHub Actions builds an unsigned `CubismMetal.dmg` containing the app. After
-extracting the `CubismMetal-macos` workflow artifact, open that disk image and
-drag or open `CubismMetal.app`.
+GitHub Actions builds an ad-hoc-signed `CubismMetal.dmg` containing the app.
+It is not Developer ID-signed or notarized. After extracting the
+`CubismMetal-macos` workflow artifact, open that disk image and drag or open
+`CubismMetal.app`.
 
 ## Run in Xcode
 

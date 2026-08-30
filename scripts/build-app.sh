@@ -45,10 +45,8 @@ fi
 
 mkdir -p "$destination/Contents/MacOS" "$destination/Contents/Resources"
 cp "$binary_path" "$destination/Contents/MacOS/CubismMetal"
-# SwiftPM's generated Bundle.module resolves target bundles from the app bundle
-# root, so keep the target bundle beside Contents rather than moving it under
-# Contents/Resources.
-ditto "$resource_bundle" "$destination/${resource_bundle:t}"
+# Keep every resource inside Contents so the app bundle can be sealed.
+ditto "$resource_bundle" "$destination/Contents/Resources/${resource_bundle:t}"
 ditto "$core_directory" "$destination/Contents/Resources/CubismCore"
 cp "$icon_file" "$destination/Contents/Resources/CubismMetal.icns"
 cp "$root_dir/scripts/CubismMetal.Info.plist" "$destination/Contents/Info.plist"
@@ -60,5 +58,11 @@ plutil -replace CFBundleExecutable -string CubismMetal "$destination/Contents/In
 plutil -replace CFBundleIdentifier -string com.rayriffy.CubismMetal "$destination/Contents/Info.plist"
 plutil -replace CFBundleName -string CubismMetal "$destination/Contents/Info.plist"
 plutil -replace CFBundleIconFile -string CubismMetal.icns "$destination/Contents/Info.plist"
+
+# Swift signs its executable, but the manually assembled app bundle still needs
+# a resource seal. An ad-hoc signature makes that seal valid without requiring
+# a Developer ID certificate in local builds or CI.
+codesign --force --deep --sign - "$destination"
+codesign --verify --deep --strict --verbose=2 "$destination"
 
 print "CubismMetal app bundle: $destination"
