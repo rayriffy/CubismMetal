@@ -31,6 +31,7 @@
 		51A7849BD267A396264CB70F /* MetalRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CA8080DB45705FAC0DAFE54 /* MetalRenderer.swift */; };
 		5A6BE642D5A5ADCAB4861A18 /* CubismCore in Resources */ = {isa = PBXBuildFile; fileRef = 683A56C9D5BECD46BDC853B1 /* CubismCore */; };
 		61D9396DF416CD537C7BCC66 /* CubismCoreLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D508C598EE14C02EA686798 /* CubismCoreLibrary.swift */; };
+		6E7219FB47719581A8324757 /* CubismMetal.icns in Resources */ = {isa = PBXBuildFile; fileRef = A7FD38F648E5DC03D4C2EDD4 /* CubismMetal.icns */; };
 		75EB7A01D30A29277F65E399 /* CubismCanvasViewport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D264F8CC3127202ECC1C65E /* CubismCanvasViewport.swift */; };
 		882BCED2B4FB6C2C7A459078 /* ViewerWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCCE0238CA8C0F4A2F30FC9A /* ViewerWindow.swift */; };
 		8A7BF0E3AEFDF4F78910B862 /* MetalRenderer+Pipelines.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DD4D37834C31B1DCF057011 /* MetalRenderer+Pipelines.swift */; };
@@ -137,6 +138,7 @@
 		83154702485D0E4BC598B220 /* InteractiveMetalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InteractiveMetalView.swift; sourceTree = "<group>"; };
 		99686777ADFE40854BAF91E4 /* CubismMetal.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CubismMetal.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A1A5C7A12DFE380E2FB7943F /* CubismCoreLibraryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CubismCoreLibraryTests.swift; sourceTree = "<group>"; };
+		A7FD38F648E5DC03D4C2EDD4 /* CubismMetal.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = CubismMetal.icns; sourceTree = "<group>"; };
 		A93FADC4EF29BBAE862664C6 /* CubismRenderTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CubismRenderTypes.swift; sourceTree = "<group>"; };
 		AB310E7669C1460F1B377081 /* CubismMotionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CubismMotionTests.swift; sourceTree = "<group>"; };
 		AE100814A2F430D9C0CA335D /* MetalRenderer+Viewport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MetalRenderer+Viewport.swift"; sourceTree = "<group>"; };
@@ -146,7 +148,7 @@
 		C74ADD66F5BDB98AEB8FF10E /* CubismCanvasViewportTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CubismCanvasViewportTests.swift; sourceTree = "<group>"; };
 		CCCE0238CA8C0F4A2F30FC9A /* ViewerWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewerWindow.swift; sourceTree = "<group>"; };
 		CE4375FE2B277B6B58FDD00D /* MetalRenderer+Support.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MetalRenderer+Support.swift"; sourceTree = "<group>"; };
-		D7C5EC854AEF6EF5E116CDE1 /* CubismMetalVerification */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = text; path = CubismMetalVerification; sourceTree = BUILT_PRODUCTS_DIR; };
+		D7C5EC854AEF6EF5E116CDE1 /* CubismMetalVerification */ = {isa = PBXFileReference; includeInIndex = 0; path = CubismMetalVerification; sourceTree = BUILT_PRODUCTS_DIR; };
 		D9929FEBA9A5D213647F046D /* CubismMetalKitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CubismMetalKitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		E6923EC503BA1EC021B6D52F /* CubismMetalKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = CubismMetalKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		F552BA4F588BEFF898C0B4B8 /* CubismModelManifest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CubismModelManifest.swift; sourceTree = "<group>"; };
@@ -212,6 +214,7 @@
 			children = (
 				683A56C9D5BECD46BDC853B1 /* CubismCore */,
 				7D18CDACE34A3C9D6F9DB066 /* Shaders */,
+				A9B9912F04D67F18D64D0AAE /* Assets */,
 				43E92745F6321C295DDA51DB /* Core */,
 				30B4F28B5AC4E06761C738A0 /* CubismMetalApp */,
 				9ADF591DD1AE7AE59C22E339 /* CubismMetalKitTests */,
@@ -309,6 +312,14 @@
 			);
 			name = CubismMetalKitTests;
 			path = Tests/CubismMetalKitTests;
+			sourceTree = "<group>";
+		};
+		A9B9912F04D67F18D64D0AAE /* Assets */ = {
+			isa = PBXGroup;
+			children = (
+				A7FD38F648E5DC03D4C2EDD4 /* CubismMetal.icns */,
+			);
+			path = Assets;
 			sourceTree = "<group>";
 		};
 		C0ECCD891C6144C70063A9B3 /* Rendering */ = {
@@ -426,6 +437,8 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+				};
 			};
 			buildConfigurationList = 7C9333CB292DDE0617587D75 /* Build configuration list for PBXProject "CubismMetal" */;
 			developmentRegion = en;
@@ -455,6 +468,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				5A6BE642D5A5ADCAB4861A18 /* CubismCore in Resources */,
+				6E7219FB47719581A8324757 /* CubismMetal.icns in Resources */,
 				F3F2D921E0A1EC571A5A0139 /* Shaders in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -542,28 +556,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				AUTOMATION_APPLE_EVENTS = NO;
 				COMBINE_HIDPI_IMAGES = YES;
-				"DEVELOPMENT_TEAM[sdk=macosx*]" = 3Q5KKY45ZN;
-				ENABLE_HARDENED_RUNTIME = NO;
-				ENABLE_RESOURCE_ACCESS_AUDIO_INPUT = NO;
-				ENABLE_RESOURCE_ACCESS_CALENDARS = NO;
-				ENABLE_RESOURCE_ACCESS_CAMERA = NO;
-				ENABLE_RESOURCE_ACCESS_CONTACTS = NO;
-				ENABLE_RESOURCE_ACCESS_LOCATION = NO;
-				ENABLE_RESOURCE_ACCESS_PHOTO_LIBRARY = NO;
 				INFOPLIST_FILE = scripts/CubismMetal.Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.rayriffy.CubismMetal;
-				RUNTIME_EXCEPTION_ALLOW_DYLD_ENVIRONMENT_VARIABLES = NO;
-				RUNTIME_EXCEPTION_ALLOW_JIT = NO;
-				RUNTIME_EXCEPTION_ALLOW_UNSIGNED_EXECUTABLE_MEMORY = NO;
-				RUNTIME_EXCEPTION_DEBUGGING_TOOL = NO;
-				RUNTIME_EXCEPTION_DISABLE_EXECUTABLE_PAGE_PROTECTION = NO;
-				RUNTIME_EXCEPTION_DISABLE_LIBRARY_VALIDATION = NO;
 				SDKROOT = macosx;
 			};
 			name = Debug;
@@ -608,28 +607,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				AUTOMATION_APPLE_EVENTS = NO;
 				COMBINE_HIDPI_IMAGES = YES;
-				"DEVELOPMENT_TEAM[sdk=macosx*]" = 3Q5KKY45ZN;
-				ENABLE_HARDENED_RUNTIME = NO;
-				ENABLE_RESOURCE_ACCESS_AUDIO_INPUT = NO;
-				ENABLE_RESOURCE_ACCESS_CALENDARS = NO;
-				ENABLE_RESOURCE_ACCESS_CAMERA = NO;
-				ENABLE_RESOURCE_ACCESS_CONTACTS = NO;
-				ENABLE_RESOURCE_ACCESS_LOCATION = NO;
-				ENABLE_RESOURCE_ACCESS_PHOTO_LIBRARY = NO;
 				INFOPLIST_FILE = scripts/CubismMetal.Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.rayriffy.CubismMetal;
-				RUNTIME_EXCEPTION_ALLOW_DYLD_ENVIRONMENT_VARIABLES = NO;
-				RUNTIME_EXCEPTION_ALLOW_JIT = NO;
-				RUNTIME_EXCEPTION_ALLOW_UNSIGNED_EXECUTABLE_MEMORY = NO;
-				RUNTIME_EXCEPTION_DEBUGGING_TOOL = NO;
-				RUNTIME_EXCEPTION_DISABLE_EXECUTABLE_PAGE_PROTECTION = NO;
-				RUNTIME_EXCEPTION_DISABLE_LIBRARY_VALIDATION = NO;
 				SDKROOT = macosx;
 			};
 			name = Release;

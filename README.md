@@ -19,14 +19,16 @@ model, plays its bundled motions, and draws the evaluated meshes with Metal.
 ```zsh
 swift build
 /bin/zsh scripts/build-app.sh
-open .build/CubismMetal.app
+/bin/zsh scripts/build-dmg.sh
+open .build/CubismMetal.dmg
 ```
 
-`build-app.sh` will not overwrite an existing bundle. Pass a new output path
-when you need another build.
+Neither packaging script overwrites an existing output. Pass explicit paths
+when you need another bundle or disk image.
 
-GitHub Actions runs the same script on macOS and uploads the unsigned local
-bundle as the `CubismMetal-macos` workflow artifact.
+GitHub Actions builds an unsigned `CubismMetal.dmg` containing the app. After
+extracting the `CubismMetal-macos` workflow artifact, open that disk image and
+drag or open `CubismMetal.app`.
 
 ## Run in Xcode
 

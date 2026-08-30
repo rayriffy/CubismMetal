@@ -21,10 +21,14 @@ jobs:
         shell: bash
         run: /bin/zsh scripts/build-app.sh "$RUNNER_TEMP/CubismMetal.app"
 
-      - name: Upload app bundle
+      - name: Package disk image
+        shell: bash
+        run: /bin/zsh scripts/build-dmg.sh "$RUNNER_TEMP/CubismMetal.app" "$RUNNER_TEMP/CubismMetal.dmg"
+
+      - name: Upload disk image
         uses: actions/upload-artifact@v7
         with:
           name: CubismMetal-macos
-          path: ${{ runner.temp }}/CubismMetal.app
+          path: ${{ runner.temp }}/CubismMetal.dmg
           if-no-files-found: error
           retention-days: 14

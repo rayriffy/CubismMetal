@@ -14,6 +14,8 @@ targets:
     platform: macOS
     sources:
       - Sources/CubismMetalApp
+      - path: Assets/CubismMetal.icns
+        buildPhase: resources
       - path: Sources/CubismMetalKit/Shaders
         buildPhase: resources
         type: folder
@@ -23,6 +25,7 @@ targets:
     info:
       path: scripts/CubismMetal.Info.plist
       properties:
+        CFBundleIconFile: CubismMetal.icns
         CFBundleDocumentTypes:
           - CFBundleTypeName: Live2D Cubism Model
             CFBundleTypeRole: Viewer
