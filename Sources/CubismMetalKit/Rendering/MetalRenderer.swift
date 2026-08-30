@@ -155,6 +155,12 @@ public final class MetalRenderer: NSObject, MTKViewDelegate {
         view?.preferredFramesPerSecond = frameRate.rawValue
     }
 
+    nonisolated static func completionSignalHandler(
+        for semaphore: DispatchSemaphore
+    ) -> @Sendable (MTLCommandBuffer) -> Void {
+        { _ in semaphore.signal() }
+    }
+
     /// Zooms around the canvas center for app-wide keyboard commands.
     public func zoomCanvas(by factor: Float) {
         guard let view else { return }
@@ -198,9 +204,7 @@ public final class MetalRenderer: NSObject, MTKViewDelegate {
         let slotSemaphore = resources.availability
         slotSemaphore.wait()
         resources.uploadedDrawableIdentifiers.removeAll(keepingCapacity: true)
-        commandBuffer.addCompletedHandler { _ in
-            slotSemaphore.signal()
-        }
+        commandBuffer.addCompletedHandler(Self.completionSignalHandler(for: slotSemaphore))
 
         defer {
             commandBuffer.present(drawable)

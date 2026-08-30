@@ -5,6 +5,21 @@ import XCTest
 
 @MainActor
 final class MetalRendererInitializationTests: XCTestCase {
+    func testCompletionHandlerSignalsOffMainActor() throws {
+        guard let device = MTLCreateSystemDefaultDevice(),
+              let commandQueue = device.makeCommandQueue(),
+              let commandBuffer = commandQueue.makeCommandBuffer()
+        else {
+            throw XCTSkip("No Metal device is available on this Mac.")
+        }
+
+        let completionSignal = DispatchSemaphore(value: 0)
+        commandBuffer.addCompletedHandler(MetalRenderer.completionSignalHandler(for: completionSignal))
+        commandBuffer.commit()
+
+        XCTAssertEqual(completionSignal.wait(timeout: .now() + 1), .success)
+    }
+
     func testLocatesPackagedShaderInApplicationResources() throws {
         let root = FileManager.default.temporaryDirectory
             .appendingPathComponent("CubismMetalShaderTests-\(UUID().uuidString)", isDirectory: true)
